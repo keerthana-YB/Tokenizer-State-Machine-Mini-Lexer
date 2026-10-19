@@ -12,12 +12,12 @@ from enum import Enum, auto
 
 class State(Enum):
     """States used by the DFA."""
-    START = auto()
-    IDENTIFIER = auto()
-    INTEGER = auto()
-    WHITESPACE = auto()
-    PUNCTUATION = auto()
-    DEAD = auto()
+    START = auto()        #q0:Initial state
+    IDENTIFIER = auto()   #q1:recognizes identifiers
+    INTEGER = auto()      #q2:recognizes integers
+    WHITESPACE = auto()   #q3:recognizes whitespace sequences
+    PUNCTUATION = auto()  #q4:recognizes punctuation
+    DEAD = auto()         #qd:Dead state for invalid transitions
 
 
 class CharacterClass(Enum):
