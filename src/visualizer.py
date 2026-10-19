@@ -1,5 +1,6 @@
 # Member 3: DFA Visualization
 
+import html
 from src.lexer import tokenize
 from src.dfa import (
     State,
@@ -7,6 +8,89 @@ from src.dfa import (
     classify_character,
     is_accepting,
 )
+
+# Color scheme for visual token chips (like OpenAI Tokenizer)
+TOKEN_COLORS = {
+    "IDENTIFIER": {
+        "bg": "#E0E7FF",
+        "border": "#818CF8",
+        "text": "#1E1B4B",
+        "label": "IDENTIFIER",
+    },
+    "NUMBER": {
+        "bg": "#DCFCE7",
+        "border": "#4ADE80",
+        "text": "#064E3B",
+        "label": "NUMBER",
+    },
+    "WHITESPACE": {
+        "bg": "#FEF9C3",
+        "border": "#FACC15",
+        "text": "#713F12",
+        "label": "WHITESPACE",
+    },
+    "PUNCTUATION": {
+        "bg": "#FCE7F3",
+        "border": "#F472B6",
+        "text": "#831843",
+        "label": "PUNCTUATION",
+    },
+    "UNKNOWN": {
+        "bg": "#FEE2E2",
+        "border": "#F87171",
+        "text": "#7F1D1D",
+        "label": "UNKNOWN",
+    },
+}
+
+
+def render_color_tokens(text: str) -> str:
+    """
+    Render text as colored HTML token badges mimicking the OpenAI Tokenizer visualizer.
+    """
+    tokens = tokenize(text)
+    if not tokens:
+        return "<p><em>No tokens to display.</em></p>"
+
+    html_parts = [
+        '<div style="line-height: 2.6; padding: 14px; border: 1px solid #CBD5E1; '
+        'border-radius: 8px; background-color: #F8FAFC; margin: 10px 0 20px 0;">'
+    ]
+
+    for token in tokens:
+        color = TOKEN_COLORS.get(
+            token.type,
+            {"bg": "#F1F5F9", "border": "#94A3B8", "text": "#0F172A", "label": token.type},
+        )
+        display_val = html.escape(token.lexeme)
+        if token.type == "WHITESPACE":
+            display_val = display_val.replace(" ", "␣").replace("\t", "⇥").replace("\n", "↵\n")
+
+        tooltip = f"{token.type} | Span: [{token.start}:{token.end}]"
+
+        chip = (
+            f'<span title="{tooltip}" style="'
+            f'display: inline-block; '
+            f'background-color: {color["bg"]}; '
+            f'border: 1px solid {color["border"]}; '
+            f'color: {color["text"]}; '
+            f'border-radius: 6px; '
+            f'padding: 3px 8px; '
+            f'margin: 2px 3px; '
+            f'font-family: monospace; '
+            f'font-size: 14px; '
+            f'box-shadow: 0 1px 2px rgba(0,0,0,0.05); '
+            f'cursor: default;'
+            f'">'
+            f'<strong>{display_val}</strong> '
+            f'<small style="font-size: 10px; opacity: 0.8; font-weight: 600;">'
+            f'{color["label"]}</small>'
+            f'</span>'
+        )
+        html_parts.append(chip)
+
+    html_parts.append('</div>')
+    return "".join(html_parts)
 
 
 def get_token_table(text: str) -> list[dict]:
@@ -75,4 +159,3 @@ def format_trace(text: str) -> str:
         )
 
     return "\n".join(lines)
-
